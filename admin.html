@@ -259,8 +259,8 @@ select.stage-filter{padding:6px 10px;border:0.5px solid var(--color-border-secon
 // ════════════════════════════════
 //  CONFIG — edit these
 // ════════════════════════════════
-const SUPABASE_URL = 'https://aboywfahjokhguxxpxrl.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_P-Rblc8Ma-GOkVC2TLEkIA_MJGss7BD';
+const SUPABASE_URL = 'https://chynsxlcmbeyjqulmfns.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_8xPruS_LgDjJqKYjp2LgvQ_e8pnBkd6';
 const ADMIN_PASSWORD = 'worldcup2026admin'; // ← change this
 
 // ════════════════════════════════
@@ -328,13 +328,11 @@ function adminLogin() {
   document.getElementById('admin-app').style.display = 'block';
   init();
 }
-document.getElementById('admin-pw').addEventListener('keydown', e => {
-  if (e.key === 'Enter') adminLogin();
-});
 function logout() {
   document.getElementById('login-screen').style.display = 'block';
   document.getElementById('admin-app').style.display = 'none';
   document.getElementById('admin-pw').value = '';
+  document.getElementById('login-err').textContent = '';
 }
 
 // ════════════════════════════════
@@ -373,7 +371,15 @@ async function sbPatch(path, body) {
   return fetch(SUPABASE_URL + path, {method:'PATCH', headers, body:JSON.stringify(body)});
 }
 async function sbDelete(path) {
-  return fetch(SUPABASE_URL + path, {method:'DELETE', headers});
+  const res = await fetch(SUPABASE_URL + path, {
+    method: 'DELETE',
+    headers: {...headers, 'Prefer': 'return=minimal'}
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error('Delete failed HTTP ' + res.status + ': ' + text);
+  }
+  return res;
 }
 async function sbUpsert(path, body) {
   const res = await fetch(SUPABASE_URL + path, {
@@ -463,8 +469,12 @@ function renderEntriesTable() {
 
 async function deleteEntry(id, name) {
   if (!confirm(`Delete entry for "${name}"? This cannot be undone.`)) return;
-  await sbDelete(`/rest/v1/pool_entries?id=eq.${id}`);
-  await loadEntries();
+  try {
+    await sbDelete(`/rest/v1/pool_entries?id=eq.${id}`);
+    await loadEntries();
+  } catch(e) {
+    alert('Delete failed: ' + e.message + '\n\nMake sure your Supabase RLS policy allows DELETE for the anon role, or disable RLS on pool_entries.');
+  }
 }
 
 // ════════════════════════════════

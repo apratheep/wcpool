@@ -293,6 +293,10 @@ body{
   <div class="banner-eyebrow">FIFA World Cup 2026</div>
   <h1>Bracket Pool</h1>
   <p id="hero-sub">Pick your bracket, stage by stage</p>
+  <a href="leaderboard.html" style="display:inline-block;margin-top:10px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 14px;text-decoration:none;letter-spacing:0.3px;transition:background 0.15s"
+    onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+    🏆 View Leaderboard
+  </a>
 </div>
 
 <!-- PROGRESS -->
@@ -779,8 +783,8 @@ function goBack(from){
 }
 
 // ===== BACKEND =====
-const SUPABASE_URL='https://aboywfahjokhguxxpxrl.supabase.co';
-const SUPABASE_ANON_KEY='sb_publishable_P-Rblc8Ma-GOkVC2TLEkIA_MJGss7BD';
+const SUPABASE_URL='https://chynsxlcmbeyjqulmfns.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_8xPruS_LgDjJqKYjp2LgvQ_e8pnBkd6';
 
 async function nameExists(name){
   const res=await fetch(
@@ -868,11 +872,20 @@ async function loadAdminEntries(){
 
 async function deleteEntry(id){
   if(!adminUnlocked||!confirm('Delete this entry?'))return;
-  await fetch(`${SUPABASE_URL}/rest/v1/pool_entries?id=eq.${id}`,{
-    method:'DELETE',
-    headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY}
-  });
-  await loadAdminEntries();
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_entries?id=eq.${id}`,{
+      method:'DELETE',
+      headers:{
+        'apikey':SUPABASE_ANON_KEY,
+        'Authorization':'Bearer '+SUPABASE_ANON_KEY,
+        'Prefer':'return=minimal'
+      }
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status+': '+(await res.text()));
+    await loadAdminEntries();
+  } catch(e) {
+    alert('Delete failed: '+e.message+'\n\nCheck that your Supabase RLS policy allows DELETE for the anon role.');
+  }
 }
 
 document.getElementById('player-name').addEventListener('keydown',e=>{if(e.key==='Enter')startPicking();});
