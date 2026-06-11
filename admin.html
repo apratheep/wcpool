@@ -376,11 +376,16 @@ async function sbDelete(path) {
   return fetch(SUPABASE_URL + path, {method:'DELETE', headers});
 }
 async function sbUpsert(path, body) {
-  return fetch(SUPABASE_URL + path, {
+  const res = await fetch(SUPABASE_URL + path, {
     method:'POST',
     headers:{...headers,'Prefer':'resolution=merge-duplicates,return=minimal'},
     body:JSON.stringify(body)
   });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error('HTTP ' + res.status + ': ' + text);
+  }
+  return res;
 }
 
 // ════════════════════════════════
@@ -608,8 +613,13 @@ function markSet(sel) {
 
 async function loadResults() {
   try {
-    const rows = await sbGet('/rest/v1/pool_results?select=data&limit=1&order=updated_at.desc');
-    if (rows && rows[0] && rows[0].data) {
+    const rows = await sbGet('/rest/v1/pool_results?select=data,updated_at&limit=1&order=updated_at.desc');
+    // rows may be an error object from PostgREST if the table doesn't exist yet
+    if (!Array.isArray(rows)) {
+      console.warn('pool_results table may not exist yet:', rows);
+      return;
+    }
+    if (rows[0] && rows[0].data) {
       results = rows[0].data;
       populateResultsForm();
     }
@@ -670,15 +680,20 @@ function val(id) {
 
 async function saveResults() {
   const data = collectResults();
-  results = data;
+  const btn = document.querySelector('[onclick="saveResults()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   try {
-    // Upsert into pool_results (single row, id=1)
-    await sbUpsert('/rest/v1/pool_results', {id: 1, data, updated_at: new Date().toISOString()});
+    await sbUpsert('/rest/v1/pool_results?on_conflict=id', {id: 1, data, updated_at: new Date().toISOString()});
+    results = data;
     const s = document.getElementById('results-saved');
     s.classList.add('show');
     setTimeout(() => s.classList.remove('show'), 2500);
   } catch(e) {
-    alert('Save failed: ' + e.message);
+    alert('Save failed: ' + e.message + '
+
+Make sure the pool_results table exists in Supabase (see SETUP-GUIDE.md).');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save results'; }
   }
 }
 
