@@ -338,7 +338,7 @@ function adminLogin() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-app').style.display = 'block';
   init();
-  document.querySelector('.hero p').textContent = `World Cup 2026 — ${POOL_ID} pool`;
+  document.querySelector('.hero p').textContent = `World Cup 2026 — ${POOL_ID || 'work'} pool`;
 }
 function logout() {
   document.getElementById('login-screen').style.display = 'block';
