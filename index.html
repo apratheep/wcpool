@@ -349,6 +349,8 @@ body{
 </div>
 
 <script>
+const POOL_ID = new URLSearchParams(window.location.search).get('pool') || 'default';
+const TABLE = `pool_entries_${POOL_ID}`;
 const GROUPS={
   A:["Mexico","South Africa","South Korea","Czechia"],
   B:["Canada","Bosnia and Herzegovina","Qatar","Switzerland"],
@@ -839,7 +841,7 @@ const SUPABASE_ANON_KEY='sb_publishable_P-Rblc8Ma-GOkVC2TLEkIA_MJGss7BD';
 
 async function nameExists(name){
   const res=await fetch(
-    `${SUPABASE_URL}/rest/v1/pool_entries?select=id&name=ilike.${encodeURIComponent(name)}&limit=1`,
+    `${SUPABASE_URL}/rest/v1/${TABLE}?select=id&name=ilike.${encodeURIComponent(name)}&limit=1`,
     {headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY}}
   );
   const rows=await res.json();
@@ -857,7 +859,7 @@ async function saveEntry(){
         tiebreak:state.tiebreak
       }
     };
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/pool_entries`,{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?`,{
       method:'POST',
       headers:{
         'apikey':SUPABASE_ANON_KEY,
