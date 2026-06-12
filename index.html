@@ -888,7 +888,8 @@ async function adminLogin(){
     document.getElementById('admin-err').textContent = 'Wrong password.';
     return;
   }
- window.location.href = `admin.html?pool=${POOL_ID}&auth=` + encodeURIComponent(pw);
+ const poolParam = POOL_ID ? `pool=${POOL_ID}&` : '';
+window.location.href = `admin.html?${poolParam}auth=` + encodeURIComponent(pw);
 }
 
 async function loadAdminEntries(){
