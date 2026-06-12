@@ -256,7 +256,8 @@ select.stage-filter{padding:6px 10px;border:0.5px solid var(--color-border-secon
 </div>
 
 <script>
-const POOL_ID = new URLSearchParams(window.location.search).get('pool');
+const POOL_ID = new URLSearchParams(window.location.search).get('pool')
+  || (window.location.pathname.split('/').filter(Boolean)[0] || null);
 const TABLE = POOL_ID ? `pool_entries_${POOL_ID}` : 'pool_entries_work';
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
