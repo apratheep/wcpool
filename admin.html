@@ -256,6 +256,17 @@ select.stage-filter{padding:6px 10px;border:0.5px solid var(--color-border-secon
 </div>
 
 <script>
+const POOL_ID = new URLSearchParams(window.location.search).get('pool') || 'default';
+const TABLE = `pool_entries_${POOL_ID}`;
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const auth = params.get('auth');
+  if(auth){
+    document.getElementById('admin-pw').value = auth;
+    adminLogin();
+    window.history.replaceState({}, '', `admin.html?pool=${POOL_ID}`);
+  }
+});
 // ════════════════════════════════
 //  CONFIG — edit these
 // ════════════════════════════════
@@ -327,6 +338,7 @@ function adminLogin() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-app').style.display = 'block';
   init();
+  document.querySelector('.hero p').textContent = `World Cup 2026 — ${POOL_ID} pool`;
 }
 function logout() {
   document.getElementById('login-screen').style.display = 'block';
@@ -423,7 +435,7 @@ async function init() {
 async function loadEntries() {
   document.getElementById('entries-table').innerHTML = '<div class="loading">Loading…</div>';
   try {
-    entries = await sbGet('/rest/v1/pool_entries?select=id,name,created_at,picks&order=created_at.asc');
+    entries = await sbGet(`/rest/v1/${TABLE}?select=id,name,created_at,picks&order=created_at.asc`);
     if (!Array.isArray(entries)) {
       // PostgREST returned an error object instead of an array
       const msg = entries?.message || entries?.hint || JSON.stringify(entries);
@@ -498,7 +510,7 @@ function renderEntriesTable() {
 async function deleteEntry(id, name) {
   if (!confirm(`Delete entry for "${name}"? This cannot be undone.`)) return;
   try {
-    await sbDelete(`/rest/v1/pool_entries?id=eq.${id}`);
+    await sbDelete(`/rest/v1/${TABLE}?id=eq.${id}`);
     await loadEntries();
   } catch(e) {
     alert('Delete failed: ' + e.message + '\n\nMake sure your Supabase RLS policy allows DELETE for the anon role, or disable RLS on pool_entries.');
@@ -740,7 +752,7 @@ async function loadLeaderboard() {
   document.getElementById('leaderboard-table').innerHTML = '<div class="loading">Loading…</div>';
   try {
     if (!entries.length) {
-      entries = await sbGet('/rest/v1/pool_entries?select=id,name,created_at,picks&order=created_at.asc');
+      entries = await sbGet(`/rest/v1/${TABLE}?select=id,name,created_at,picks&order=created_at.asc`);
     }
     if (!Object.keys(results).length) await loadResults();
     renderLeaderboard();
