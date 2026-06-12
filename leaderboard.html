@@ -140,6 +140,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--surface2);color:v
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────
+const POOL_ID = new URLSearchParams(window.location.search).get('pool')
+  || (window.location.pathname.split('/').filter(Boolean)[0] || null);
+const TABLE = POOL_ID ? `pool_entries_${POOL_ID}` : 'pool_entries_work';
 const SUPABASE_URL = 'https://aboywfahjokhguxxpxrl.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_P-Rblc8Ma-GOkVC2TLEkIA_MJGss7BD';
 
@@ -210,7 +213,7 @@ async function load() {
   document.getElementById('updated-at').textContent = '';
   try {
     const [entriesRaw, resultsRaw] = await Promise.all([
-      sbGet('/rest/v1/pool_entries?select=id,name,created_at,picks&order=created_at.asc'),
+      sbGet(`/rest/v1/${TABLE}?select=id,name,created_at,picks&order=created_at.asc`),
       sbGet('/rest/v1/pool_results?select=data,updated_at&limit=1&order=updated_at.desc')
     ]);
 
