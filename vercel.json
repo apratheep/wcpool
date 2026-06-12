@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/friends", "destination": "/index.html?pool=friends" },
+    { "source": "/friends",       "destination": "/index.html?pool=friends" },
     { "source": "/friends/admin", "destination": "/admin.html?pool=friends" }
   ]
 }
