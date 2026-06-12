@@ -872,13 +872,12 @@ function showAdminPrompt(){
 }
 
 async function adminLogin(){
-  const pw=document.getElementById('admin-pw').value;
-  if(pw!==ADMIN_PASSWORD){document.getElementById('admin-err').textContent='Wrong password.';return;}
-  adminUnlocked=true;
-  document.getElementById('admin-login').style.display='none';
-  document.getElementById('admin-err').textContent='';
-  document.getElementById('admin-controls').style.display='block';
-  await loadAdminEntries();
+  const pw = document.getElementById('admin-pw').value;
+  if(pw !== ADMIN_PASSWORD){
+    document.getElementById('admin-err').textContent = 'Wrong password.';
+    return;
+  }
+  window.location.href = 'admin.html?auth=' + encodeURIComponent(pw);
 }
 
 async function loadAdminEntries(){
@@ -932,6 +931,7 @@ async function deleteEntry(id){
 
 document.getElementById('player-name').addEventListener('keydown',e=>{if(e.key==='Enter')startPicking();});
 updateProgress();
+document.getElementById('admin-pw').addEventListener('keydown', e => { if(e.key === 'Enter') adminLogin(); });
 </script>
 </body>
 </html>
