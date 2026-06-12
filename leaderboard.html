@@ -204,6 +204,10 @@ async function sbGet(path) {
       'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
     }
   });
+  if (!r.ok) {
+    const text = await r.text();
+    throw new Error('GET ' + path + ' failed ' + r.status + ': ' + text);
+  }
   return r.json();
 }
 
@@ -212,10 +216,10 @@ async function load() {
   document.getElementById('board').innerHTML = '<div class="loading">Loading standings…</div>';
   document.getElementById('updated-at').textContent = '';
   try {
-    const [entriesRaw, resultsRaw] = await Promise.all([
-      sbGet(`/rest/v1/${TABLE}?select=id,name,created_at,picks&order=created_at.asc`),
-sbGet('/rest/v1/pool_results?select=data,updated_at&limit=1&order=updated_at.desc')
-    ]);
+const [entriesRaw, resultsRaw] = await Promise.all([
+  sbGet(`/rest/v1/${TABLE}?select=id,name,created_at,picks&order=created_at.asc`),
+  sbGet('/rest/v1/pool_results?select=data,updated_at&limit=1&order=updated_at.desc').catch(() => [])
+]);
 
     const results = (resultsRaw && resultsRaw[0] && resultsRaw[0].data) ? resultsRaw[0].data : {};
     const resultsUpdatedAt = resultsRaw?.[0]?.updated_at;
