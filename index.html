@@ -889,14 +889,11 @@ async function adminLogin(){
     document.getElementById('admin-err').textContent = 'Wrong password.';
     return;
   }
-async function adminLogin(){
-  const pw = document.getElementById('admin-pw').value;
-  if(pw !== ADMIN_PASSWORD){
-    document.getElementById('admin-err').textContent = 'Wrong password.';
-    return;
-  }
-  const poolParam = POOL_ID ? `?pool=${POOL_ID}&` : '?';
-  window.location.href = `/admin.html${poolParam}auth=` + encodeURIComponent(pw);
+const adminTarget = POOL_ID && POOL_ID !== 'work' 
+  ? `/${POOL_ID}/admin` 
+  : '/admin.html';
+const poolParam = POOL_ID ? `?pool=${POOL_ID}&` : '?';
+window.location.href = adminTarget + '?auth=' + encodeURIComponent(pw);
 }
 
 async function loadAdminEntries(){
