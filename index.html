@@ -349,8 +349,8 @@ body{
 </div>
 
 <script>
-const POOL_ID = new URLSearchParams(window.location.search).get('pool') 
-  || (window.location.pathname.split('/').filter(Boolean)[0] || null);
+const POOL_ID = new URLSearchParams(window.location.search).get('pool')
+  || (() => { const p = window.location.pathname.split('/').filter(s => s && !s.includes('.')); return p[0] || null; })();
 const TABLE = POOL_ID ? `pool_entries_${POOL_ID}` : 'pool_entries_work';
 const GROUPS={
   A:["Mexico","South Africa","South Korea","Czechia"],
@@ -930,7 +930,7 @@ async function loadAdminEntries(){
 async function deleteEntry(id){
   if(!adminUnlocked||!confirm('Delete this entry?'))return;
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/pool_entries?id=eq.${id}`,{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${id}`,{
       method:'DELETE',
       headers:{
         'apikey':SUPABASE_ANON_KEY,
