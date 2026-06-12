@@ -1,16 +1,5 @@
 {
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" }
-  ],
-  "headers": [
-    {
-      "source": "/admin.html",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
-    }
-  ]
-}
-{
-  "rewrites": [
     { "source": "/friends",       "destination": "/index.html?pool=friends" },
     { "source": "/friends/admin", "destination": "/admin.html?pool=friends" },
     { "source": "/work",          "destination": "/index.html?pool=work" },
