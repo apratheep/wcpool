@@ -514,7 +514,9 @@ function renderThird(){
     <div class="team-grid">`;
   pool.forEach(t=>{
     const s=sel.includes(t);
-    const dis=!s&&sel.length>=8;
+    const grp=teamGroup(t);
+const groupTaken=!s&&state.thirdPicks.some(p=>teamGroup(p)===grp);
+const dis=!s&&(state.thirdPicks.length>=8||groupTaken);
     html+=`<button class="tbtn${s?' p3':dis?' elim':''}" onclick="toggleThird('${esc(t)}')">
       <span class="dot"></span>${t}${s?'<span class="rank-badge" style="background:var(--amber-bg);color:var(--amber-text);border:1px solid var(--amber-border)">3rd ✓</span>':''}</button>`;
   });
@@ -528,8 +530,15 @@ function renderThird(){
 
 function toggleThird(team){
   const idx=state.thirdPicks.indexOf(team);
-  if(idx>-1)state.thirdPicks.splice(idx,1);
-  else if(state.thirdPicks.length<8)state.thirdPicks.push(team);
+  if(idx>-1){
+    state.thirdPicks.splice(idx,1);
+  } else {
+    if(state.thirdPicks.length>=8)return;
+    const grp=teamGroup(team);
+    const groupAlreadyPicked=state.thirdPicks.some(t=>teamGroup(t)===grp);
+    if(groupAlreadyPicked)return;
+    state.thirdPicks.push(team);
+  }
   renderThird();
 }
 
