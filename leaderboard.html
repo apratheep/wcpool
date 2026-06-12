@@ -214,7 +214,7 @@ async function load() {
   try {
     const [entriesRaw, resultsRaw] = await Promise.all([
       sbGet(`/rest/v1/${TABLE}?select=id,name,created_at,picks&order=created_at.asc`),
-      sbGet('/rest/v1/pool_results?select=data,updated_at&limit=1&order=updated_at.desc')
+sbGet('/rest/v1/pool_results?select=data,updated_at&limit=1&order=updated_at.desc')
     ]);
 
     const results = (resultsRaw && resultsRaw[0] && resultsRaw[0].data) ? resultsRaw[0].data : {};
