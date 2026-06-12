@@ -845,6 +845,16 @@ function esc(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const auth = params.get('auth');
+  if(auth){
+    document.getElementById('admin-pw').value = auth;
+    adminLogin();
+    // Clean the password from the URL bar
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+});
 </script>
 </body>
 </html>
