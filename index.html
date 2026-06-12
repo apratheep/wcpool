@@ -860,7 +860,7 @@ async function saveEntry(){
         tiebreak:state.tiebreak
       }
     };
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?`,{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`,{
       method:'POST',
       headers:{
         'apikey':SUPABASE_ANON_KEY,
@@ -889,11 +889,14 @@ async function adminLogin(){
     document.getElementById('admin-err').textContent = 'Wrong password.';
     return;
   }
-const adminTarget = POOL_ID && POOL_ID !== 'work' 
-  ? `/${POOL_ID}/admin` 
-  : '/admin.html';
-const poolParam = POOL_ID ? `?pool=${POOL_ID}&` : '?';
-window.location.href = adminTarget + '?auth=' + encodeURIComponent(pw);
+async function adminLogin(){
+  const pw = document.getElementById('admin-pw').value;
+  if(pw !== ADMIN_PASSWORD){
+    document.getElementById('admin-err').textContent = 'Wrong password.';
+    return;
+  }
+  const poolParam = POOL_ID ? `?pool=${POOL_ID}&` : '?';
+  window.location.href = `/admin.html${poolParam}auth=` + encodeURIComponent(pw);
 }
 
 async function loadAdminEntries(){
@@ -901,7 +904,7 @@ async function loadAdminEntries(){
   panel.innerHTML='<p style="font-size:13px;color:var(--ink2)">Loading…</p>';
   try{
     const res=await fetch(
-      `${SUPABASE_URL}/rest/v1/pool_entries?select=id,name,created_at&order=created_at.asc`,
+      `${SUPABASE_URL}/rest/v1/${TABLE}?select=id,name,created_at&order=created_at.asc`,
       {headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY}}
     );
     const rows=await res.json();
