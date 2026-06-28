@@ -539,13 +539,16 @@ function viewEntry(id) {
   });
   html += '</div>';
 
-  // Third picks
-  html += '<div class="bsec"><h3>Best 8 third-place teams</h3>';
-  (p.thirdPicks||[]).forEach((t,i) => {
-    const correct = results.thirdPicks?.includes(t);
-    html += pickRow(`3rd pick #${i+1}`, t, correct===undefined?undefined:correct?t:null);
-  });
-  html += '</div>';
+// Third picks — award ✓ if the team made R32 by any means
+html += '<div class="bsec"><h3>Best 8 third-place teams</h3>';
+const r32Set = new Set();
+Object.values(results.groupPicks||{}).forEach(r => { if(r.first) r32Set.add(r.first); if(r.second) r32Set.add(r.second); });
+(results.thirdPicks||[]).forEach(t => { if(t) r32Set.add(t); });
+(p.thirdPicks||[]).forEach((t,i) => {
+  const scored = r32Set.size ? r32Set.has(t) : undefined;
+  html += pickRow(`3rd pick #${i+1}`, t, scored===undefined?undefined:scored?t:null);
+});
+html += '</div>';
 
   // Knockout
   const ko = [
@@ -826,11 +829,16 @@ function scoreEntry(picks, res) {
     if (r.first  && picks.groupPicks?.[g]?.first  === r.first)  pts += POINTS.groups;
     if (r.second && picks.groupPicks?.[g]?.second === r.second) pts += POINTS.groups;
   });
-
-  // Best thirds
-  (res.thirdPicks || []).forEach(t => {
-    if (t && picks.thirdPicks?.includes(t)) pts += POINTS.third;
-  });
+// Third-place qualifiers — 1pt per pick that made R32 by any means
+const r32Teams = new Set();
+Object.values(res.groupPicks || {}).forEach(r => {
+  if (r.first)  r32Teams.add(r.first);
+  if (r.second) r32Teams.add(r.second);
+});
+(res.thirdPicks || []).forEach(t => { if (t) r32Teams.add(t); });
+(picks.thirdPicks || []).forEach(t => {
+  if (t && r32Teams.has(t)) pts += POINTS.third;
+});
 
   // Knockout arrays
   const koMap = [
