@@ -162,10 +162,16 @@ function scoreEntry(picks, res) {
     if (r.second && picks.groupPicks?.[g]?.second === r.second) pts += POINTS.groups;
   });
 
-  // Best 8 third-place — 1pt each
-  (res.thirdPicks || []).forEach(t => {
-    if (t && picks.thirdPicks?.includes(t)) pts += POINTS.third;
-  });
+// Third-place qualifiers — 1pt per pick that made R32 by any means
+const r32Teams = new Set();
+Object.values(res.groupPicks || {}).forEach(r => {
+  if (r.first)  r32Teams.add(r.first);
+  if (r.second) r32Teams.add(r.second);
+});
+(res.thirdPicks || []).forEach(t => { if (t) r32Teams.add(t); });
+(picks.thirdPicks || []).forEach(t => {
+  if (t && r32Teams.has(t)) pts += POINTS.third;
+});
 
   // Knockout arrays (r32/r16/qf/sf)
   [
